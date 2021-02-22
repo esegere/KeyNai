@@ -34,4 +34,25 @@ class Profile(BaseORM):
         self.password = password
 
 
+class Account(BaseORM):
+    """Object representation of "accounts" table."""
+    __tablename__ = "accounts"
+    __id = Column("account_id", Integer, primary_key=True)
+    user = Column("user", String, nullable=False)
+    __profile_id = Column(Integer, ForeignKey("profiles.profile_id"), nullable=False)
+    __service_id = Column(Integer, ForeignKey("services.service_id"), nullable=False)
 
+    def __init__(
+            self,
+            *,
+            user: str
+    ):
+        """Create a new :class:`Account` instance.
+
+                all attributes passed to this constructor must be kwargs::
+
+                    account = Account(user="username")
+
+                :param user: uniquely identifies this account
+                """
+        self.user = user
