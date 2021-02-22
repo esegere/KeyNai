@@ -53,6 +53,58 @@ class Account(BaseORM):
 
                     account = Account(user="username")
 
-                :param user: uniquely identifies this account
+                :param user: uniquely identifies this account.
                 """
         self.user = user
+
+
+class LifespanType(BaseORM):
+    """Object representation of "lifespan_types" table."""
+    __tablename__ = "lifespan_types"
+    __id = Column("lifespan_type_id", Integer, primary_key=True)
+    type_ = Column("type", String, unique=True, nullable=False)
+
+
+class Service(BaseORM):
+    """Object representation of "services" table."""
+    __tablename__ = "services"
+    __id = Column("service_id", Integer, primary_key=True)
+    name = Column("name", String, unique=True, nullable=False)
+    accepts_duplicates = Column("accepts_duplicates", Integer, nullable=False)
+    minimum_length = Column("minimum_length", Integer, nullable=False)
+    maximum_length = Column("maximum_length", Integer, nullable=False)
+    lifespan_amount = Column("lifespan_amount", Integer, nullable=False)
+    lifespan_type = Column(Integer, ForeignKey("lifespan_types.lifespan_type_id"), nullable=False)
+
+    def __init__(
+            self,
+            *,
+            name: str,
+            accepts_duplicates: bool = True,
+            minimum_length: int = 16,
+            maximum_length: int = 16,
+            lifespan_amount: int = -1,
+    ):
+        """Create a new :class:`Service` instance.
+
+                all attributes passed to this constructor must be kwargs::
+
+                    service = Service(name="service_name")
+
+                :param name: uniquely identifies the profile.
+
+                :param accepts_duplicates=True: indicates if the given service
+                accepts duplicate versions of the password.
+
+                :param minimum_length=16: minimum length for all the passwords belonging to this service
+
+                :param maximum_length=16: maximum length for all the passwords belonging to this service
+
+                :param lifespan_amount=-1: amount of time all passwords for this service stay active, default -1 means
+                undefined; lifespan could be of type days, months or years, given by :class:`LifespanType` values
+                """
+        self.name = name
+        self.accepts_duplicates = accepts_duplicates
+        self.minimum_length = minimum_length
+        self.maximum_length = maximum_length
+        self.lifespan_amount = lifespan_amount
