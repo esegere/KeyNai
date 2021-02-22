@@ -1,8 +1,8 @@
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
-import entities
+import database.entities as entities
 
-engine = create_engine("sqlite:///passwords.db")
-entities.BaseORM.metadata.create_all(bind=engine)
-Session = sessionmaker(bind=engine)
+__engine = create_engine("sqlite:///passwords.db")
+entities.BaseORM.metadata.create_all(bind=__engine)
+Session = sessionmaker(bind=__engine)
