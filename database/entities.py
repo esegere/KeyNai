@@ -59,12 +59,22 @@ class Account(BaseORM):
                 """
         self.user = user
 
+    @property
+    def id(self):
+        """"returns id of the current object, non modifiable"""
+        return self.__id
+
 
 class LifespanType(BaseORM):
     """Object representation of "lifespan_types" table."""
     __tablename__ = "lifespan_types"
     __id = Column("lifespan_type_id", Integer, primary_key=True)
     type_ = Column("type", String, unique=True, nullable=False)
+
+    @property
+    def id(self):
+        """"returns id of the current object, non modifiable"""
+        return self.__id
 
 
 class Service(BaseORM):
@@ -111,6 +121,11 @@ class Service(BaseORM):
         self.maximum_length = maximum_length
         self.lifespan_amount = lifespan_amount
 
+    @property
+    def id(self):
+        """"returns id of the current object, non modifiable"""
+        return self.__id
+
 
 class Format(BaseORM):
     """Object representation of "formats" table."""
@@ -143,6 +158,11 @@ class Format(BaseORM):
         self.regex = regex
         self.description = description
 
+    @property
+    def id(self):
+        """"returns id of the current object, non modifiable"""
+        return self.__id
+
 
 class Password(BaseORM):
     """Object representation of "passwords" table."""
@@ -169,9 +189,19 @@ class Password(BaseORM):
         self.password = password
         self.creation_date = Date()
 
+    @property
+    def id(self):
+        """"returns id of the current object, non modifiable"""
+        return self.__id
+
 
 class Status(BaseORM):
     """Object representation of "statuses" table."""
     __tablename__ = "statuses"
     __id = Column("status_id", Integer, primary_key=True)
     status = Column("status", String, nullable=False, unique=True)
+
+    @property
+    def id(self):
+        """"returns id of the current object, non modifiable"""
+        return self.__id
