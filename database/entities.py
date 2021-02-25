@@ -1,5 +1,7 @@
 """Contains all the classes related to tables in the database and its relationships,
 declared based on SQLAlchemy ORM."""
+from typing import Optional
+
 from sqlalchemy import Column, ForeignKey, Integer, String
 from sqlalchemy.ext.declarative import declarative_base
 
@@ -108,3 +110,35 @@ class Service(BaseORM):
         self.minimum_length = minimum_length
         self.maximum_length = maximum_length
         self.lifespan_amount = lifespan_amount
+
+
+class Format(BaseORM):
+    """Object representation of "formats" table."""
+    __tablename__ = "accounts"
+    __id = Column("format_id", Integer, primary_key=True)
+    name = Column("name", String, nullable=False, unique=True)
+    regex = Column("regex", String, nullable=False)
+    description = Column("description", String, nullable=True)
+
+    def __init__(
+            self,
+            *,
+            name: str,
+            regex: str,
+            description: Optional[str] = None
+    ):
+        """Create a new :class:`Format` instance.
+
+                all attributes passed to this constructor must be kwargs::
+
+                    format = Format(name="service_name", regex="pattern")
+
+                :param name: uniquely identifies the format.
+
+                :param regex: patter the format has to follow.
+
+                :param description=None: specifies a description of the format´s behaviour.
+                """
+        self.name = name
+        self.regex = regex
+        self.description = description
