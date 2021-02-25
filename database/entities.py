@@ -2,7 +2,7 @@
 declared based on SQLAlchemy ORM."""
 from typing import Optional
 
-from sqlalchemy import Column, ForeignKey, Integer, String
+from sqlalchemy import Column, ForeignKey, Integer, String, Date
 from sqlalchemy.ext.declarative import declarative_base
 
 BaseORM = declarative_base()
@@ -142,3 +142,29 @@ class Format(BaseORM):
         self.name = name
         self.regex = regex
         self.description = description
+
+
+class Password(BaseORM):
+    """Object representation of "passwords" table."""
+    __tablename__ = "passwords"
+    __id = Column("password_id", Integer, primary_key=True)
+    password = Column("password", String, nullable=False)
+    creation_date = Column("creation_date", Date, nullable=False)
+    status_id = Column(Integer, ForeignKey("statuses.status_id"), nullable=False)
+    account_id = Column(Integer, ForeignKey("account.account_id"), nullable=False)
+
+    def __init__(
+            self,
+            *,
+            password: str
+    ):
+        """Create a new :class:`Password` instance.
+
+                        all attributes passed to this constructor must be kwargs::
+
+                            password = Password(password="password")
+
+                        :param password: used to log in to the respective service.
+                        """
+        self.password = password
+        self.creation_date = Date()
