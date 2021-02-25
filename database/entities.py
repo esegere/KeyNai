@@ -2,7 +2,7 @@
 declared based on SQLAlchemy ORM."""
 from typing import Optional
 
-from sqlalchemy import Column, ForeignKey, Integer, String, Date
+from sqlalchemy import Column, Date, ForeignKey, Integer, String
 from sqlalchemy.ext.declarative import declarative_base
 
 BaseORM = declarative_base()
@@ -114,7 +114,7 @@ class Service(BaseORM):
 
 class Format(BaseORM):
     """Object representation of "formats" table."""
-    __tablename__ = "accounts"
+    __tablename__ = "formats"
     __id = Column("format_id", Integer, primary_key=True)
     name = Column("name", String, nullable=False, unique=True)
     regex = Column("regex", String, nullable=False)
@@ -168,3 +168,10 @@ class Password(BaseORM):
                         """
         self.password = password
         self.creation_date = Date()
+
+
+class Status(BaseORM):
+    """Object representation of "statuses" table."""
+    __tablename__ = "statuses"
+    __id = Column("status_id", Integer, primary_key=True)
+    status = Column("status", String, nullable=False, unique=True)
