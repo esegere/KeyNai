@@ -2,4 +2,7 @@
 .idea/*
 
 # base de datos SQLite
-passwords.db
+/.passwords.db
+
+# configuracion de sistema linux
+/.directory
