@@ -1,7 +1,9 @@
 from database.engine import Session
-from database.entities import
+from database.entities import Account, Profile
 
 session = Session()
-session.query()
+profiles = session.query(Profile).all()
 
-session.query()
+for profile in profiles:
+    for account in profile.accounts:
+        print(f"account: {account.user} -> profile{account.profile}")

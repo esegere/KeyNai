@@ -4,6 +4,7 @@ from typing import Optional
 
 from sqlalchemy import Column, Date, ForeignKey, Integer, String
 from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import relationship
 
 BaseORM = declarative_base()
 
@@ -14,6 +15,8 @@ class Profile(BaseORM):
     __id = Column("profile_id", Integer, primary_key=True)
     name = Column("name", String, unique=True, nullable=False)
     password = Column("password", String, nullable=False)
+    # relationships
+    formats = relationship("Format", back_populates="profile")
 
     def __init__(
             self,
@@ -35,14 +38,55 @@ class Profile(BaseORM):
         self.name = name
         self.password = password
 
+    @property
+    def id(self):
+        """"returns id of the current object, non modifiable"""
+        return self.__id
+
+
+class Password(BaseORM):
+    """Object representation of "passwords" table."""
+    __tablename__ = "passwords"
+    __id = Column("password_id", Integer, primary_key=True)
+    password = Column("password", String, nullable=False)
+    creation_date = Column("creation_date", Date, nullable=False)
+    __status_id = Column("status_id", Integer, ForeignKey("statuses.status_id"), nullable=False)
+    __account_id = Column("account_id", Integer, ForeignKey("account.account_id"), nullable=False)
+    # relationships
+    account = relationship("Account", back_populates="passwords")
+    status = relationship("Status", back_populates="passwords")
+
+    def __init__(
+            self,
+            *,
+            password: str
+    ):
+        """Create a new :class:`Password` instance.
+
+                        all attributes passed to this constructor must be kwargs::
+
+                            password = Password(password="password")
+
+                        :param password: used to log in to the respective service.
+                        """
+        self.password = password
+        self.creation_date = Date()
+
+    @property
+    def id(self):
+        """"returns id of the current object, non modifiable"""
+        return self.__id
+
 
 class Account(BaseORM):
     """Object representation of "accounts" table."""
     __tablename__ = "accounts"
     __id = Column("account_id", Integer, primary_key=True)
     user = Column("user", String, nullable=False)
-    __profile_id = Column(Integer, ForeignKey("profiles.profile_id"), nullable=False)
-    __service_id = Column(Integer, ForeignKey("services.service_id"), nullable=False)
+    __service_id = Column("service_id", Integer, ForeignKey("services.service_id"), nullable=False)
+    # relationships
+    service = relationship("Service", back_populates="accounts")
+    passwords = relationship("Password", order_by=Password.creation_date, back_populates="account")
 
     def __init__(
             self,
@@ -70,6 +114,8 @@ class LifespanType(BaseORM):
     __tablename__ = "lifespan_types"
     __id = Column("lifespan_type_id", Integer, primary_key=True)
     type_ = Column("type", String, unique=True, nullable=False)
+    # relationships
+    services = relationship("Service", back_populates="lifespan_type")
 
     @property
     def id(self):
@@ -86,7 +132,14 @@ class Service(BaseORM):
     minimum_length = Column("minimum_length", Integer, nullable=False)
     maximum_length = Column("maximum_length", Integer, nullable=False)
     lifespan_amount = Column("lifespan_amount", Integer, nullable=False)
-    lifespan_type = Column(Integer, ForeignKey("lifespan_types.lifespan_type_id"), nullable=False)
+    __lifespan_type_id = Column("lifespan_type_id", Integer, ForeignKey("lifespan_types.lifespan_type_id"),
+                                nullable=False)
+    __format_id = Column("format_id", Integer, ForeignKey("formats.format_id"), nullable=False)
+    __profile_id = Column("profile_id", Integer, ForeignKey(), nullable=False)
+    # relationships
+    format = relationship("Format", back_populates="services")
+    lifespan_type = relationship("LifespanType", back_populates="services")
+    accounts = relationship("Account", back_populates="service")
 
     def __init__(
             self,
@@ -134,6 +187,9 @@ class Format(BaseORM):
     name = Column("name", String, nullable=False, unique=True)
     regex = Column("regex", String, nullable=False)
     description = Column("description", String, nullable=True)
+    # relationships
+    profile = relationship("Profile", back_populates="formats")
+    services = relationship("Service", back_populates="format")
 
     def __init__(
             self,
@@ -164,42 +220,13 @@ class Format(BaseORM):
         return self.__id
 
 
-class Password(BaseORM):
-    """Object representation of "passwords" table."""
-    __tablename__ = "passwords"
-    __id = Column("password_id", Integer, primary_key=True)
-    password = Column("password", String, nullable=False)
-    creation_date = Column("creation_date", Date, nullable=False)
-    status_id = Column(Integer, ForeignKey("statuses.status_id"), nullable=False)
-    account_id = Column(Integer, ForeignKey("account.account_id"), nullable=False)
-
-    def __init__(
-            self,
-            *,
-            password: str
-    ):
-        """Create a new :class:`Password` instance.
-
-                        all attributes passed to this constructor must be kwargs::
-
-                            password = Password(password="password")
-
-                        :param password: used to log in to the respective service.
-                        """
-        self.password = password
-        self.creation_date = Date()
-
-    @property
-    def id(self):
-        """"returns id of the current object, non modifiable"""
-        return self.__id
-
-
 class Status(BaseORM):
     """Object representation of "statuses" table."""
     __tablename__ = "statuses"
     __id = Column("status_id", Integer, primary_key=True)
     status = Column("status", String, nullable=False, unique=True)
+    # relationships
+    passwords = relationship("Password", back_populates="status")
 
     @property
     def id(self):
