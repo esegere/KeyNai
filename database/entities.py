@@ -135,7 +135,6 @@ class Service(BaseORM):
     __lifespan_type_id = Column("lifespan_type_id", Integer, ForeignKey("lifespan_types.lifespan_type_id"),
                                 nullable=False)
     __format_id = Column("format_id", Integer, ForeignKey("formats.format_id"), nullable=False)
-    __profile_id = Column("profile_id", Integer, ForeignKey(), nullable=False)
     # relationships
     format = relationship("Format", back_populates="services")
     lifespan_type = relationship("LifespanType", back_populates="services")
