@@ -1,3 +1,5 @@
 #archivos de configuracion de pc
-
 .idea/*
+
+# base de datos SQLite
+passwords.db

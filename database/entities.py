@@ -44,71 +44,6 @@ class Profile(BaseORM):
         return self.__id
 
 
-class Password(BaseORM):
-    """Object representation of "passwords" table."""
-    __tablename__ = "passwords"
-    __id = Column("password_id", Integer, primary_key=True)
-    password = Column("password", String, nullable=False)
-    creation_date = Column("creation_date", Date, nullable=False)
-    __status_id = Column("status_id", Integer, ForeignKey("statuses.status_id"), nullable=False)
-    __account_id = Column("account_id", Integer, ForeignKey("account.account_id"), nullable=False)
-    # relationships
-    account = relationship("Account", back_populates="passwords")
-    status = relationship("Status", back_populates="passwords")
-
-    def __init__(
-            self,
-            *,
-            password: str
-    ):
-        """Create a new :class:`Password` instance.
-
-                        all attributes passed to this constructor must be kwargs::
-
-                            password = Password(password="password")
-
-                        :param password: used to log in to the respective service.
-                        """
-        self.password = password
-        self.creation_date = Date()
-
-    @property
-    def id(self):
-        """"returns id of the current object, non modifiable"""
-        return self.__id
-
-
-class Account(BaseORM):
-    """Object representation of "accounts" table."""
-    __tablename__ = "accounts"
-    __id = Column("account_id", Integer, primary_key=True)
-    user = Column("user", String, nullable=False)
-    __service_id = Column("service_id", Integer, ForeignKey("services.service_id"), nullable=False)
-    # relationships
-    service = relationship("Service", back_populates="accounts")
-    passwords = relationship("Password", order_by=Password.creation_date, back_populates="account")
-
-    def __init__(
-            self,
-            *,
-            user: str
-    ):
-        """Create a new :class:`Account` instance.
-
-                all attributes passed to this constructor must be kwargs::
-
-                    account = Account(user="username")
-
-                :param user: uniquely identifies this account.
-                """
-        self.user = user
-
-    @property
-    def id(self):
-        """"returns id of the current object, non modifiable"""
-        return self.__id
-
-
 class LifespanType(BaseORM):
     """Object representation of "lifespan_types" table."""
     __tablename__ = "lifespan_types"
@@ -116,6 +51,61 @@ class LifespanType(BaseORM):
     type_ = Column("type", String, unique=True, nullable=False)
     # relationships
     services = relationship("Service", back_populates="lifespan_type")
+
+    @property
+    def id(self):
+        """"returns id of the current object, non modifiable"""
+        return self.__id
+
+
+class Status(BaseORM):
+    """Object representation of "statuses" table."""
+    __tablename__ = "statuses"
+    __id = Column("status_id", Integer, primary_key=True)
+    status = Column("status", String, nullable=False, unique=True)
+    # relationships
+    passwords = relationship("Password", back_populates="status")
+
+    @property
+    def id(self):
+        """"returns id of the current object, non modifiable"""
+        return self.__id
+
+
+class Format(BaseORM):
+    """Object representation of "formats" table."""
+    __tablename__ = "formats"
+    __id = Column("format_id", Integer, primary_key=True)
+    name = Column("name", String, nullable=False, unique=True)
+    regex = Column("regex", String, nullable=False)
+    description = Column("description", String, nullable=True)
+    __profile_id = Column("profile_id", Integer, ForeignKey("profiles.profile_id"), nullable=False)
+    # relationships
+    profile = relationship("Profile", back_populates="formats")
+    services = relationship("Service", back_populates="format")
+
+    def __init__(
+            self,
+            *,
+            name: str,
+            regex: str,
+            description: Optional[str] = None
+    ):
+        """Create a new :class:`Format` instance.
+
+                all attributes passed to this constructor must be kwargs::
+
+                    format = Format(name="service_name", regex="pattern")
+
+                :param name: uniquely identifies the format.
+
+                :param regex: patter the format has to follow.
+
+                :param description=None: specifies a description of the format´s behaviour.
+                """
+        self.name = name
+        self.regex = regex
+        self.description = description
 
     @property
     def id(self):
@@ -179,39 +169,33 @@ class Service(BaseORM):
         return self.__id
 
 
-class Format(BaseORM):
-    """Object representation of "formats" table."""
-    __tablename__ = "formats"
-    __id = Column("format_id", Integer, primary_key=True)
-    name = Column("name", String, nullable=False, unique=True)
-    regex = Column("regex", String, nullable=False)
-    description = Column("description", String, nullable=True)
+class Password(BaseORM):
+    """Object representation of "passwords" table."""
+    __tablename__ = "passwords"
+    __id = Column("password_id", Integer, primary_key=True)
+    password = Column("password", String, nullable=False)
+    creation_date = Column("creation_date", Date, nullable=False)
+    __status_id = Column("status_id", Integer, ForeignKey("statuses.status_id"), nullable=False)
+    __account_id = Column("account_id", Integer, ForeignKey("accounts.account_id"), nullable=False)
     # relationships
-    profile = relationship("Profile", back_populates="formats")
-    services = relationship("Service", back_populates="format")
+    account = relationship("Account", back_populates="passwords")
+    status = relationship("Status", back_populates="passwords")
 
     def __init__(
             self,
             *,
-            name: str,
-            regex: str,
-            description: Optional[str] = None
+            password: str
     ):
-        """Create a new :class:`Format` instance.
+        """Create a new :class:`Password` instance.
 
-                all attributes passed to this constructor must be kwargs::
+                        all attributes passed to this constructor must be kwargs::
 
-                    format = Format(name="service_name", regex="pattern")
+                            password = Password(password="password")
 
-                :param name: uniquely identifies the format.
-
-                :param regex: patter the format has to follow.
-
-                :param description=None: specifies a description of the format´s behaviour.
-                """
-        self.name = name
-        self.regex = regex
-        self.description = description
+                        :param password: used to log in to the respective service.
+                        """
+        self.password = password
+        self.creation_date = Date()
 
     @property
     def id(self):
@@ -219,13 +203,30 @@ class Format(BaseORM):
         return self.__id
 
 
-class Status(BaseORM):
-    """Object representation of "statuses" table."""
-    __tablename__ = "statuses"
-    __id = Column("status_id", Integer, primary_key=True)
-    status = Column("status", String, nullable=False, unique=True)
+class Account(BaseORM):
+    """Object representation of "accounts" table."""
+    __tablename__ = "accounts"
+    __id = Column("account_id", Integer, primary_key=True)
+    user = Column("user", String, nullable=False)
+    __service_id = Column("service_id", Integer, ForeignKey("services.service_id"), nullable=False)
     # relationships
-    passwords = relationship("Password", back_populates="status")
+    service = relationship("Service", back_populates="accounts")
+    passwords = relationship("Password", order_by=Password.creation_date, back_populates="account")
+
+    def __init__(
+            self,
+            *,
+            user: str
+    ):
+        """Create a new :class:`Account` instance.
+
+                all attributes passed to this constructor must be kwargs::
+
+                    account = Account(user="username")
+
+                :param user: uniquely identifies this account.
+                """
+        self.user = user
 
     @property
     def id(self):
